@@ -12,7 +12,7 @@ visibility="unlisted"
 querybase="https://danbooru.donmai.us/posts/random.json?tags="
 
 # URL encode this (ie copy from a danbooru search)
-extra_param="+rating%3asafe" 
+extra_param="+rating%3asafe+filetype:jpg,png" 
 declare -a Rabbits=( "reisen_udongein_inaba" "inaba_tewi" "ringo_%28touhou%29" "seiran_%28touhou%29" "reisen_%28touhou_bougetsushou%29" )
 declare -a ImageIds=()
 
