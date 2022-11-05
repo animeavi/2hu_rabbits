@@ -27,11 +27,15 @@ declare -a ImageIds=()
 
 for rabbit in ${Rabbits[@]}; do
    query="$querybase$rabbit$extra_param"
-   json=$(curl "$query" 2> /dev/null)
-   imageurl=$(jq -r ".file_url" <<< "$json")
-   [ -d "$img_dir" ] || mkdir "$img_dir" || (echo "Error creating image folder" && exit)
 
-   if [[ $imageurl == *jpg ]] || [[ $imageurl == *jpeg ]] || [[ $imageurl == *png ]] || [[ $imageurl == *gif ]]; then
+   n=1
+   while [ $n -le 10 ]
+   do
+     json=$(curl "$query" 2> /dev/null)
+     imageurl=$(jq -r ".file_url" <<< "$json")
+     [ -d "$img_dir" ] || mkdir "$img_dir" || (echo "Error creating image folder" && exit)
+
+     if [[ $imageurl == *jpg ]] || [[ $imageurl == *jpeg ]] || [[ $imageurl == *png ]] || [[ $imageurl == *gif ]]; then
         wget "$imageurl" -P "$img_dir" 2> /dev/null || (echo "Could not download image" && exit)
 
         image_json=$( \
@@ -43,9 +47,12 @@ for rabbit in ${Rabbits[@]}; do
 
         id=$(jq -r ".id" <<< "$image_json")
         ImageIds+=($id)
-   fi
+        break
+     fi
 
-   sleep 1
+     (( n++ ))
+     sleep 1
+   done
 done
 
 ids_json=$(jq --compact-output --null-input '$ARGS.positional' --args "${ImageIds[@]}")
