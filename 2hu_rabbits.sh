@@ -25,6 +25,7 @@ extra_param="+rating%3asafe"
 declare -a Rabbits=( "reisen_udongein_inaba" "inaba_tewi" "ringo_%28touhou%29" "seiran_%28touhou%29" "reisen_%28touhou_bougetsushou%29" )
 declare -a ImageIds=()
 
+[ -d "$img_dir" ] || mkdir "$img_dir" || (echo "Error creating image folder" && exit)
 for rabbit in ${Rabbits[@]}; do
    query="$querybase$rabbit$extra_param"
 
@@ -33,7 +34,6 @@ for rabbit in ${Rabbits[@]}; do
    do
      json=$(curl "$query" 2> /dev/null)
      imageurl=$(jq -r ".file_url" <<< "$json")
-     [ -d "$img_dir" ] || mkdir "$img_dir" || (echo "Error creating image folder" && exit)
 
      if [[ $imageurl == *jpg ]] || [[ $imageurl == *jpeg ]] || [[ $imageurl == *png ]] || [[ $imageurl == *gif ]]; then
         wget "$imageurl" -P "$img_dir" 2> /dev/null || (echo "Could not download image" && exit)
