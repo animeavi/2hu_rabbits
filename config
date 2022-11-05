@@ -1,0 +1,7 @@
+instance=example.com
+client_id=aaaa
+client_secret=bbb
+access_token=ccc
+visibility=unlisted
+img_dir=tmp
+post_text=:dinosaur:
