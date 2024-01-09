@@ -18,10 +18,10 @@ img_dir=$(get_conf img_dir)
 post_text=$(get_conf post_text)
 visibility=$(get_conf visibility) # public, unlisted, private
 
-querybase="https://danbooru.donmai.us/posts/random.json?tags="
+querybase="https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags="
 
 # URL encode this (ie copy from a danbooru search)
-extra_param="+rating%3asafe"
+extra_param="+rating%3Ageneral"
 declare -a Rabbits=( "reisen_udongein_inaba" "inaba_tewi" "ringo_%28touhou%29" "seiran_%28touhou%29" "reisen_%28touhou_bougetsushou%29" )
 declare -a ImageIds=()
 
@@ -29,11 +29,33 @@ declare -a ImageIds=()
 for rabbit in ${Rabbits[@]}; do
    query="$querybase$rabbit$extra_param"
 
+   # Find maximum number of pages possible first
+   curl "$query" > "$img_dir/pages.json"
+   count=$(jq -r '."@attributes".count' "$img_dir/pages.json")
+   rm -rf "$img_dir/pages.json"
+   pages=$((($count/100)-1)) # 0 index
+
+   # This is the limit of the API
+   if [[ $pages > 200 ]]; then
+     pages=200
+   fi
+
+   # Grab a random page of results
+   random_page=$(shuf -i 0-"$pages" -n 1)
+   query="$query&pid=$random_page"
+   echo $query
+
    n=1
    while [ $n -le 10 ]
    do
-     json=$(curl "$query" 2> /dev/null)
-     imageurl=$(jq -r ".file_url" <<< "$json")
+     curl "$query" > "$img_dir/results.json"
+     result_count=$(jq ".post | length" "$img_dir/results.json")
+     result_count=$(($result_count-1)) # 0 index
+
+     # Grab a random item from the results we got
+     random_result=$(shuf -i 0-"$result_count" -n 1)
+     imageurl=$(jq -r .post["$random_result"].file_url "$img_dir/results.json")
+     rm -rf "$img_dir/results.json"
 
      if [[ $imageurl == *jpg ]] || [[ $imageurl == *jpeg ]] || [[ $imageurl == *png ]] || [[ $imageurl == *gif ]]; then
         wget "$imageurl" -P "$img_dir" 2> /dev/null || (echo "Could not download image" && exit 1)
