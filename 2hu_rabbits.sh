@@ -25,7 +25,7 @@ extra_param="+rating%3asafe"
 declare -a Rabbits=( "reisen_udongein_inaba" "inaba_tewi" "ringo_%28touhou%29" "seiran_%28touhou%29" "reisen_%28touhou_bougetsushou%29" )
 declare -a ImageIds=()
 
-[ -d "$img_dir" ] || mkdir "$img_dir" || (echo "Error creating image folder" && exit)
+[ -d "$img_dir" ] || mkdir "$img_dir" || (echo "Error creating image folder" && exit 1)
 for rabbit in ${Rabbits[@]}; do
    query="$querybase$rabbit$extra_param"
 
@@ -36,7 +36,7 @@ for rabbit in ${Rabbits[@]}; do
      imageurl=$(jq -r ".file_url" <<< "$json")
 
      if [[ $imageurl == *jpg ]] || [[ $imageurl == *jpeg ]] || [[ $imageurl == *png ]] || [[ $imageurl == *gif ]]; then
-        wget "$imageurl" -P "$img_dir" 2> /dev/null || (echo "Could not download image" && exit)
+        wget "$imageurl" -P "$img_dir" 2> /dev/null || (echo "Could not download image" && exit 1)
 
         image_json=$( \
             curl -X POST "https://$instance/api/v1/media" \
