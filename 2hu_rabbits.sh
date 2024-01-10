@@ -54,7 +54,7 @@ for rabbit in ${Rabbits[@]}; do
 
      # Grab a random item from the results we got
      random_result=$(shuf -i 0-"$result_count" -n 1)
-     imageurl=$(jq -r .post["$random_result"].file_url "$img_dir/results.json")
+     imageurl=$(jq -r ".post[$random_result].file_url" "$img_dir/results.json")
      rm -rf "$img_dir/results.json"
 
      if [[ $imageurl == *jpg ]] || [[ $imageurl == *jpeg ]] || [[ $imageurl == *png ]] || [[ $imageurl == *gif ]]; then
