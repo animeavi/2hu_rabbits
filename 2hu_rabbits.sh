@@ -36,7 +36,7 @@ for rabbit in ${Rabbits[@]}; do
    pages=$((($count/100)-1)) # 0 index
 
    # This is the limit of the API
-   if [[ $pages > 200 ]]; then
+   if [ "$pages" -gt 200 ]; then
      pages=200
    fi
 
