@@ -31,6 +31,12 @@ for rabbit in ${Rabbits[@]}; do
 
    # Find maximum number of pages possible first
    curl "$query" > "$img_dir/pages.json"
+
+   if ! jq -r type "$img_dir/pages.json" >/dev/null 2>&1; then
+     echo "Got invalid JSON as a response!"
+     exit 1
+   fi
+
    count=$(jq -r '."@attributes".count' "$img_dir/pages.json")
    rm -rf "$img_dir/pages.json"
    pages=$((($count/100)-1)) # 0 index
